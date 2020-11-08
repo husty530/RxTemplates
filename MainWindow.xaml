@@ -1,0 +1,59 @@
+﻿<Window x:Class="RxTemplates.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:RxTemplates"
+        mc:Ignorable="d"
+        Title="Rx Templates" Height="600" Width="800" MinHeight="600" MinWidth="800" Background="Black">
+    <Grid>
+        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="7*" />
+            <RowDefinition Height="1*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="3*" />
+        </Grid.ColumnDefinitions>
+        
+        <Viewbox Grid.Row="0" Grid.Column="1" Margin="5">
+            <Button x:Name="OpenCloseButton" Content="Open" Width="70" IsEnabled="False" Visibility="Hidden" Click="OpenCloseButton_Click"/>
+        </Viewbox>
+        <Viewbox Grid.Row="0" Grid.Column="0" Margin="5">
+            <ComboBox x:Name="ModeCombo" Width="80" SelectionChanged="ModeCombo_SelectionChanged">
+                <ComboBoxItem Content="Video"/>
+                <ComboBoxItem Content="Chart"/>
+                <ComboBoxItem Content="Dialogue"/>
+            </ComboBox>
+        </Viewbox>
+        
+        <Viewbox Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" Margin="10">
+            <Slider x:Name="Slider" Width="400" PreviewMouseLeftButtonDown="Slider_PreviewMouseLeftButtonDown" PreviewMouseLeftButtonUp="Slider_PreviewMouseLeftButtonUp" IsEnabled="False" Visibility="Hidden"/>
+        </Viewbox>
+
+        <Viewbox Grid.Row="2" Grid.Column="0" Margin="10">
+            <Button x:Name="PauseButton" Content="| |" Foreground="Green" Width="30" Click="PauseButton_Click" IsEnabled="False" Visibility="Hidden"/>
+        </Viewbox>
+        <Viewbox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4" Margin="15">
+            <Image x:Name="Image" IsEnabled="False" Visibility="Hidden"/>
+        </Viewbox>
+
+        <Viewbox Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
+            <Label x:Name="Instraction" Content="Put Text and Press Enter →→" Foreground="Yellow" Visibility="Hidden"/>
+        </Viewbox>
+        <Viewbox Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2" Margin="5">
+            <TextBox x:Name="MessageTx" Foreground="white" Background="Black" IsEnabled="False" Width="200" Visibility="Hidden" PreviewKeyDown="TextBox_PreviewKeyDown"/>
+        </Viewbox>
+        <Viewbox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Margin="5">
+            <Label x:Name="LeftLabel" Foreground="White" Width="100" Height="200" IsEnabled="False" Visibility="Hidden"/>
+        </Viewbox>
+        <Viewbox Grid.Row="1" Grid.Column="3" Margin="5">
+            <Label x:Name="RightLabel" Foreground="White" Width="100" Height="200" IsEnabled="False" Visibility="Hidden"/>
+        </Viewbox>
+        
+    </Grid>
+</Window>
