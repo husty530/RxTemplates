@@ -122,9 +122,9 @@ namespace RxTemplates
                     }
                     else
                     {
+                        RxLogger.Close();
                         active = false;
                         ChangeStatus(status);
-                        RxLogger.Close();
                     }
                     break;
 
