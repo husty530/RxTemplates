@@ -19,10 +19,11 @@ namespace RxTemplates
     {
 
         private enum Mode { Init, Video, Chart, Dialogue }
+        private enum SubjectMode { Normal, Async }
         private bool active;
         private string _videoName;
         private IDisposable vidDisposer;
-        private Subject<string> _subject;
+        private ISubject<string> _subject;
 
         public MainWindow()
         {
@@ -143,6 +144,11 @@ namespace RxTemplates
             ChangeStatus(status);
         }
 
+        private void DialogueCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ChangeStatus(Mode.Dialogue);
+        }
+
         private void PauseButton_Click(object sender, RoutedEventArgs e)
         {
             if (active)
@@ -178,8 +184,62 @@ namespace RxTemplates
             if(e.Key == Key.Enter)
             {
                 var message = MessageTx.Text;
-                _subject.OnNext(MessageTx.Text);        //Subjectを発動させている
+                //Subjectを発動させる
+                if (message == "c") _subject.OnCompleted();
+                else if (message == "r")
+                {
+                    _subject = MakeSubject((SubjectMode)DialogueCombo.SelectedIndex);
+                    _subject.OnNext("reconnect");
+                }
+                else _subject.OnNext(message);
+                MessageTx.Text = "";
             }
+        }
+
+
+        //Rxの3つ目、対話型通信のSubject本体
+        private ISubject<string> MakeSubject(SubjectMode mode)
+        {
+            _subject = new Subject<string>();
+            switch (mode)
+            {
+
+                case SubjectMode.Normal:
+                    _subject = new Subject<string>();
+                    _subject
+                        .Where(message => message != "")
+                        .Subscribe(
+                            message =>
+                            {
+                                LeftLabel.Content += $"{message} -->\n";
+                                var reverse = string.Concat(message.Reverse());
+                                RightLabel.Content += $"--> {reverse}\n";
+                            },
+                            () =>
+                            {
+                                LeftLabel.Content = "completed\n";
+                                RightLabel.Content = $"{string.Concat("completed".Reverse())}\n";
+                            });
+                    break;
+
+                case SubjectMode.Async:
+                    _subject = new AsyncSubject<string>();
+                    _subject
+                        .Where(message => message != "")
+                        .Subscribe(message =>
+                        {
+                            LeftLabel.Content = $"{message} -->\n";
+                            var reverse = string.Concat(message.Reverse());
+                            RightLabel.Content = $"--> {reverse}\n";
+                            LeftLabel.Content += "completed\n";
+                            RightLabel.Content += $"{string.Concat("completed".Reverse())}\n";
+                        });
+                    break;
+
+                default:
+                    break;
+            }
+            return _subject;
         }
 
 
@@ -197,6 +257,8 @@ namespace RxTemplates
                     Image.Source = new Mat(480, 640, MatType.CV_8UC3, new Scalar(0, 0, 0)).ToBitmapSource();
                     Image.IsEnabled = false;
                     Image.Visibility = Visibility.Hidden;
+                    DialogueCombo.IsEnabled = false;
+                    DialogueCombo.Visibility = Visibility.Hidden;
                     Instraction.Visibility = Visibility.Hidden;
                     MessageTx.IsEnabled = false;
                     MessageTx.Visibility = Visibility.Hidden;
@@ -212,6 +274,8 @@ namespace RxTemplates
                     PauseButton.Visibility = Visibility.Visible;
                     Image.IsEnabled = true;
                     Image.Visibility = Visibility.Visible;
+                    DialogueCombo.IsEnabled = false;
+                    DialogueCombo.Visibility = Visibility.Hidden;
                     Instraction.Visibility = Visibility.Hidden;
                     MessageTx.IsEnabled = false;
                     MessageTx.Visibility = Visibility.Hidden;
@@ -239,6 +303,8 @@ namespace RxTemplates
                     PauseButton.Visibility = Visibility.Hidden;
                     Image.IsEnabled = true;
                     Image.Visibility = Visibility.Visible;
+                    DialogueCombo.IsEnabled = false;
+                    DialogueCombo.Visibility = Visibility.Hidden;
                     Instraction.Visibility = Visibility.Hidden;
                     MessageTx.IsEnabled = false;
                     MessageTx.Visibility = Visibility.Hidden;
@@ -265,6 +331,8 @@ namespace RxTemplates
                     PauseButton.Visibility = Visibility.Hidden;
                     Image.IsEnabled = false;
                     Image.Visibility = Visibility.Hidden;
+                    DialogueCombo.IsEnabled = true;
+                    DialogueCombo.Visibility = Visibility.Visible;
                     Instraction.Visibility = Visibility.Visible;
                     MessageTx.IsEnabled = true;
                     MessageTx.Visibility = Visibility.Visible;
@@ -274,29 +342,10 @@ namespace RxTemplates
                     RightLabel.Visibility = Visibility.Visible;
                     RightLabel.Content = "";
 
-                    //Rxの3つ目、対話型通信のSubject本体
+                    _subject = MakeSubject((SubjectMode)DialogueCombo.SelectedIndex);
 
-                    _subject = new Subject<string>();
-                    _subject
-                        .Where(message => message != "")
-                        .Select(message =>
-                        {
-                            MessageTx.Clear();
-                            LeftLabel.Content += $"{message} -->\n";
-                            RightLabel.Content += $"--> {message}\n";
-                            var reverse = string.Concat(message.Reverse());
-                            LeftLabel.Content += $"{reverse} <--\n\n";
-                            RightLabel.Content += $"<-- {reverse}\n\n";
-                            return message;
-                        })
-                        .Where(message => message == "clear" || message == "CLEAR" || message == "Clear")
-                        .Subscribe(message =>
-                        {
-                            LeftLabel.Content = "";
-                            RightLabel.Content = "";
-                        });
                     break;
-
+                    
             }
             
         }
